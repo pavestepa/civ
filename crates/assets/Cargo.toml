@@ -1,0 +1,10 @@
+[package]
+edition.workspace = true
+name = "civ-assets"
+description = "Asset loading and management via Bevy."
+readme = "README.md"
+publish = false
+
+[dependencies]
+civ-common = { workspace = true }
+bevy = { workspace = true }

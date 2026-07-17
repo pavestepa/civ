@@ -1,0 +1,13 @@
+[package]
+edition.workspace = true
+name = "civ-terrain"
+description = "Terrain generation and tile data systems."
+readme = "README.md"
+publish = false
+
+[dependencies]
+civ-hex = { workspace = true }
+civ-world = { workspace = true }
+noise = { workspace = true }
+bevy = { workspace = true }
+rand = { workspace = true }

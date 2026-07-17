@@ -1,0 +1,13 @@
+[package]
+edition.workspace = true
+name = "civ-common"
+description = "Shared types, identifiers, and errors for the Civ engine."
+readme = "README.md"
+publish = false
+
+[dependencies]
+serde = { workspace = true }
+thiserror = { workspace = true }
+uuid = { workspace = true }
+glam = { workspace = true }
+bitflags = { workspace = true }

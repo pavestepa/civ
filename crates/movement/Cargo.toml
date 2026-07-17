@@ -1,0 +1,13 @@
+[package]
+edition.workspace = true
+name = "civ-movement"
+description = "Movement subsystem plugin."
+readme = "README.md"
+publish = false
+
+[dependencies]
+civ-common = { workspace = true }
+civ-world = { workspace = true }
+civ-pathfinding = { workspace = true }
+civ-gameplay = { workspace = true }
+bevy = { workspace = true }

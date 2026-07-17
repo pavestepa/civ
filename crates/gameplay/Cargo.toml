@@ -1,0 +1,14 @@
+[package]
+edition.workspace = true
+name = "civ-gameplay"
+description = "Gameplay orchestration and shared gameplay resources."
+readme = "README.md"
+publish = false
+
+[dependencies]
+civ-common = { workspace = true }
+civ-world = { workspace = true }
+civ-simulation = { workspace = true }
+civ-commands = { workspace = true }
+civ-events = { workspace = true }
+bevy = { workspace = true }

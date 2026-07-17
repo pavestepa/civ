@@ -1,0 +1,46 @@
+[package]
+edition.workspace = true
+name = "civ-engine"
+description = "Bevy game engine application."
+readme = "README.md"
+publish = false
+
+[[bin]]
+name = "civ-engine"
+path = "src/main.rs"
+
+[dependencies]
+civ-common = { workspace = true }
+civ-hex = { workspace = true }
+civ-world = { workspace = true }
+civ-events = { workspace = true }
+civ-commands = { workspace = true }
+civ-resources = { workspace = true }
+civ-save = { workspace = true }
+civ-pathfinding = { workspace = true }
+civ-simulation = { workspace = true }
+civ-terrain = { workspace = true }
+civ-ecs = { workspace = true }
+civ-render = { workspace = true }
+civ-assets = { workspace = true }
+civ-gameplay = { workspace = true }
+civ-combat = { workspace = true }
+civ-movement = { workspace = true }
+civ-economy = { workspace = true }
+civ-research = { workspace = true }
+civ-production = { workspace = true }
+civ-culture = { workspace = true }
+civ-religion = { workspace = true }
+civ-diplomacy = { workspace = true }
+civ-government = { workspace = true }
+civ-great-people = { workspace = true }
+civ-trade = { workspace = true }
+civ-fog = { workspace = true }
+civ-ai = { workspace = true }
+civ-network = { workspace = true }
+civ-scripting = { workspace = true }
+civ-quickjs = { workspace = true }
+civ-ui-bridge = { workspace = true }
+bevy = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }

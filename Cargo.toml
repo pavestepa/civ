@@ -1,0 +1,116 @@
+[workspace]
+resolver = "2"
+members = [
+    "engine",
+    "launcher",
+    "crates/common",
+    "crates/hex",
+    "crates/world",
+    "crates/events",
+    "crates/commands",
+    "crates/resources",
+    "crates/save",
+    "crates/pathfinding",
+    "crates/simulation",
+    "crates/terrain",
+    "crates/ecs",
+    "crates/render",
+    "crates/assets",
+    "crates/gameplay",
+    "crates/combat",
+    "crates/movement",
+    "crates/economy",
+    "crates/research",
+    "crates/production",
+    "crates/culture",
+    "crates/religion",
+    "crates/diplomacy",
+    "crates/government",
+    "crates/great_people",
+    "crates/trade",
+    "crates/fog",
+    "crates/ai",
+    "crates/network",
+    "crates/scripting",
+    "crates/quickjs",
+    "crates/ui_bridge",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/pavelstepanov/civ"
+rust-version = "1.86"
+
+[workspace.dependencies]
+# Engine
+bevy = { version = "0.15", default-features = true, features = ["bevy_asset", "bevy_gltf", "bevy_pbr", "bevy_render", "bevy_scene", "bevy_state", "bevy_window", "bevy_winit", "multi_threaded"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+postcard = { version = "1", features = ["alloc"] }
+
+# Scripting
+rquickjs = "0.8"
+
+# Desktop shell
+tauri = { version = "2", features = [] }
+tauri-plugin-shell = "2"
+
+# Utilities
+thiserror = "2"
+anyhow = "1"
+uuid = { version = "1", features = ["serde", "v4"] }
+bitflags = "2"
+smallvec = { version = "1", features = ["serde"] }
+indexmap = { version = "2", features = ["serde"] }
+noise = "0.9"
+pathfinding = "=4.8.2"
+image = "=0.25.5"
+rayon = "1"
+rand = "0.9"
+glam = { version = "0.29", features = ["serde"] }
+crossbeam-channel = "0.5"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+serde_json = "1"
+
+# Internal crates
+civ-common = { path = "crates/common" }
+civ-hex = { path = "crates/hex" }
+civ-world = { path = "crates/world" }
+civ-events = { path = "crates/events" }
+civ-commands = { path = "crates/commands" }
+civ-resources = { path = "crates/resources" }
+civ-save = { path = "crates/save" }
+civ-pathfinding = { path = "crates/pathfinding" }
+civ-simulation = { path = "crates/simulation" }
+civ-terrain = { path = "crates/terrain" }
+civ-ecs = { path = "crates/ecs" }
+civ-render = { path = "crates/render" }
+civ-assets = { path = "crates/assets" }
+civ-gameplay = { path = "crates/gameplay" }
+civ-combat = { path = "crates/combat" }
+civ-movement = { path = "crates/movement" }
+civ-economy = { path = "crates/economy" }
+civ-research = { path = "crates/research" }
+civ-production = { path = "crates/production" }
+civ-culture = { path = "crates/culture" }
+civ-religion = { path = "crates/religion" }
+civ-diplomacy = { path = "crates/diplomacy" }
+civ-government = { path = "crates/government" }
+civ-great-people = { path = "crates/great_people" }
+civ-trade = { path = "crates/trade" }
+civ-fog = { path = "crates/fog" }
+civ-ai = { path = "crates/ai" }
+civ-network = { path = "crates/network" }
+civ-scripting = { path = "crates/scripting" }
+civ-quickjs = { path = "crates/quickjs" }
+civ-ui-bridge = { path = "crates/ui_bridge" }
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3

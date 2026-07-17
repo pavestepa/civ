@@ -1,0 +1,15 @@
+[package]
+edition.workspace = true
+name = "civ-quickjs"
+description = "QuickJS bindings for game scripting."
+readme = "README.md"
+publish = false
+
+[dependencies]
+civ-common = { workspace = true }
+civ-hex = { workspace = true }
+civ-commands = { workspace = true }
+civ-scripting = { workspace = true }
+bevy = { workspace = true }
+rquickjs = { workspace = true }
+tracing = { workspace = true }

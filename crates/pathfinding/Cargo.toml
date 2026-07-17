@@ -1,0 +1,12 @@
+[package]
+edition.workspace = true
+name = "civ-pathfinding"
+description = "Hex grid pathfinding for unit movement."
+readme = "README.md"
+publish = false
+
+[dependencies]
+civ-hex = { workspace = true }
+civ-world = { workspace = true }
+pathfinding = { workspace = true }
+bevy = { workspace = true }

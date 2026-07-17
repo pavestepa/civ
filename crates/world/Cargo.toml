@@ -1,0 +1,14 @@
+[package]
+edition.workspace = true
+name = "civ-world"
+description = "Renderer-independent world simulation data model."
+readme = "README.md"
+publish = false
+
+[dependencies]
+civ-common = { workspace = true }
+civ-hex = { workspace = true }
+serde = { workspace = true }
+bitflags = { workspace = true, features = ["serde"] }
+indexmap = { workspace = true }
+uuid = { workspace = true }

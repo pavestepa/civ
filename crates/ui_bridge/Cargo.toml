@@ -1,0 +1,16 @@
+[package]
+edition.workspace = true
+name = "civ-ui-bridge"
+description = "IPC bridge between React UI and Rust game API."
+readme = "README.md"
+publish = false
+
+[dependencies]
+civ-common = { workspace = true }
+civ-commands = { workspace = true }
+civ-events = { workspace = true }
+civ-simulation = { workspace = true }
+bevy = { workspace = true }
+crossbeam-channel = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }

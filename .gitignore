@@ -1,0 +1,9 @@
+/target
+**/target
+node_modules
+ui/dist
+launcher/gen
+.DS_Store
+*.log
+.env
+.env.*

@@ -1,0 +1,12 @@
+[package]
+edition.workspace = true
+name = "civ-resources"
+description = "Game resource definitions and registries."
+readme = "README.md"
+publish = false
+
+[dependencies]
+civ-common = { workspace = true }
+serde = { workspace = true }
+bevy = { workspace = true }
+indexmap = { workspace = true }

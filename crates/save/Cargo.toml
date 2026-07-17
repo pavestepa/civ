@@ -1,0 +1,14 @@
+[package]
+edition.workspace = true
+name = "civ-save"
+description = "Save/load infrastructure using Serde and Postcard."
+readme = "README.md"
+publish = false
+
+[dependencies]
+civ-common = { workspace = true }
+civ-world = { workspace = true }
+serde = { workspace = true }
+postcard = { workspace = true }
+thiserror = { workspace = true }
+bevy = { workspace = true }

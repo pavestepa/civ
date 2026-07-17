@@ -1,0 +1,11 @@
+[package]
+edition.workspace = true
+name = "civ-hex"
+description = "Hexagonal grid coordinate system for world maps."
+readme = "README.md"
+publish = false
+
+[dependencies]
+civ-common = { workspace = true }
+serde = { workspace = true }
+glam = { workspace = true }

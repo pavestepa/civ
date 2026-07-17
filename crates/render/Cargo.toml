@@ -1,0 +1,13 @@
+[package]
+edition.workspace = true
+name = "civ-render"
+description = "Bevy rendering plugin — observes ECS, never owns simulation truth."
+readme = "README.md"
+publish = false
+
+[dependencies]
+civ-ecs = { workspace = true }
+civ-hex = { workspace = true }
+civ-world = { workspace = true }
+bevy = { workspace = true }
+image = { workspace = true }

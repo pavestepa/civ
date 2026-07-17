@@ -1,0 +1,15 @@
+[package]
+edition.workspace = true
+name = "civ-scripting"
+description = "Scripting infrastructure for mods, scenarios, and DLC."
+readme = "README.md"
+publish = false
+
+[dependencies]
+civ-common = { workspace = true }
+civ-hex = { workspace = true }
+civ-commands = { workspace = true }
+civ-events = { workspace = true }
+civ-world = { workspace = true }
+bevy = { workspace = true }
+serde = { workspace = true }

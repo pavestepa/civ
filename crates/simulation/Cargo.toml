@@ -1,0 +1,14 @@
+[package]
+edition.workspace = true
+name = "civ-simulation"
+description = "Deterministic game simulation owning world truth."
+readme = "README.md"
+publish = false
+
+[dependencies]
+civ-common = { workspace = true }
+civ-world = { workspace = true }
+civ-commands = { workspace = true }
+civ-events = { workspace = true }
+bevy = { workspace = true }
+serde = { workspace = true }

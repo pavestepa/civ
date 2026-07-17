@@ -1,0 +1,14 @@
+[package]
+edition.workspace = true
+name = "civ-ecs"
+description = "Bevy ECS components mirroring simulation world data."
+readme = "README.md"
+publish = false
+
+[dependencies]
+civ-common = { workspace = true }
+civ-hex = { workspace = true }
+civ-world = { workspace = true }
+civ-simulation = { workspace = true }
+bevy = { workspace = true }
+serde = { workspace = true }

@@ -1,0 +1,13 @@
+[package]
+edition.workspace = true
+name = "civ-events"
+description = "Game events flowing from simulation to UI and scripting."
+readme = "README.md"
+publish = false
+
+[dependencies]
+civ-common = { workspace = true }
+civ-hex = { workspace = true }
+civ-world = { workspace = true }
+serde = { workspace = true }
+bevy = { workspace = true }

@@ -1,0 +1,14 @@
+[package]
+edition.workspace = true
+name = "civ-network"
+description = "Multiplayer and dedicated server networking infrastructure."
+readme = "README.md"
+publish = false
+
+[dependencies]
+civ-common = { workspace = true }
+civ-events = { workspace = true }
+civ-commands = { workspace = true }
+civ-save = { workspace = true }
+serde = { workspace = true }
+bevy = { workspace = true }

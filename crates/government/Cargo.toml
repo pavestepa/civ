@@ -1,0 +1,12 @@
+[package]
+edition.workspace = true
+name = "civ-government"
+description = "Government subsystem plugin."
+readme = "README.md"
+publish = false
+
+[dependencies]
+civ-common = { workspace = true }
+civ-world = { workspace = true }
+civ-gameplay = { workspace = true }
+bevy = { workspace = true }
