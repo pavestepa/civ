@@ -7,27 +7,26 @@ use std::sync::Arc;
 use bevy::prelude::*;
 use bevy::window::{PrimaryWindow, WindowResized};
 use bevy::winit::WinitWindows;
+use civ_channel::WireMessage;
 use civ_ui_bridge::UiChannelEndpoint;
 use wry::dpi::{LogicalPosition, LogicalSize};
 use wry::http::Request;
 use wry::{Rect, WebViewBuilder};
 
-use crate::commands::UiAction;
 use crate::dev_server::{ensure_vite_dev_server, webview_dev_url, webview_prod_url};
-use crate::ipc::parse_command;
 use crate::state::LauncherIpc;
 
 const INIT_SCRIPT: &str = r#"
-window.__civReceiveEvents = function(events) {
-  window.dispatchEvent(new CustomEvent('civ:events', { detail: events }));
-};
+(function () {
+  const style = document.createElement("style");
+  style.textContent = "html, body, #root { background: transparent !important; }";
+  document.documentElement.appendChild(style);
+})();
 "#;
 
-/// Bevy resource wrapping shared launcher IPC state.
 #[derive(Resource, Clone)]
 struct LauncherIpcResource(LauncherIpc);
 
-/// Holds the launcher-side IPC endpoint until the overlay webview initializes.
 #[derive(Resource, Clone)]
 pub struct LauncherChannel(pub UiChannelEndpoint);
 
@@ -47,7 +46,7 @@ impl Plugin for WebViewOverlayPlugin {
             Update,
             (
                 try_attach_webview_overlay,
-                push_events_to_webview,
+                push_messages_to_webview,
                 sync_webview_bounds,
             ),
         );
@@ -61,19 +60,19 @@ fn try_attach_webview_overlay(world: &mut World) {
             return;
         }
 
-        // Wait until winit finishes showing the window (it starts hidden for a11y setup).
         state.warmup_frames += 1;
         if state.warmup_frames < 3 {
             return;
         }
     }
 
-    let Some(launcher_channel) = world.get_resource::<LauncherChannel>() else {
-        tracing::warn!("LauncherChannel not set — skipping UI overlay");
-        return;
+    let launcher_endpoint = {
+        let Some(launcher_channel) = world.get_resource::<LauncherChannel>() else {
+            tracing::warn!("LauncherChannel not set — skipping UI overlay");
+            return;
+        };
+        launcher_channel.0.clone()
     };
-
-    let launcher_endpoint = launcher_channel.0.clone();
 
     let entity = {
         let mut query = world.query_filtered::<Entity, With<PrimaryWindow>>();
@@ -88,7 +87,6 @@ fn try_attach_webview_overlay(world: &mut World) {
         let Some(winit_window) = winit_windows.get_window(entity) else {
             return;
         };
-
         let size = winit_window.inner_size();
         (size.width as f64, size.height as f64)
     };
@@ -113,24 +111,30 @@ fn try_attach_webview_overlay(world: &mut World) {
         let winit_window = winit_windows
             .get_window(entity)
             .expect("primary winit window");
-
         let winit_window: &winit::window::Window = winit_window;
 
         WebViewBuilder::new()
             .with_url(&url)
             .with_transparent(true)
+            .with_initialization_script(INIT_SCRIPT)
             .with_bounds(Rect {
                 position: LogicalPosition::new(0.0, 0.0).into(),
                 size: LogicalSize::new(width, height).into(),
             })
-            .with_initialization_script(INIT_SCRIPT)
             .with_ipc_handler(move |request: Request<String>| {
                 let body = request.body();
-                if let Ok(action) = serde_json::from_str::<UiAction>(body) {
-                    let command = parse_command(action);
-                    let _ = ipc_state.send(civ_ui_bridge::IpcMessage::Command(command));
-                } else {
-                    tracing::warn!("unrecognized IPC message: {body}");
+                match WireMessage::from_json(body) {
+                    Ok(WireMessage::Req { id, op, body }) => {
+                        if let Err(error) = ipc_state.forward_request(id, op, body) {
+                            tracing::warn!("failed to forward front-api request: {error}");
+                        }
+                    }
+                    Ok(other) => {
+                        tracing::warn!("expected req wire message, got {other:?}");
+                    }
+                    Err(error) => {
+                        tracing::warn!("unrecognized IPC message ({error}): {body}");
+                    }
                 }
             })
             .build_as_child(winit_window)
@@ -147,7 +151,7 @@ fn try_attach_webview_overlay(world: &mut World) {
     tracing::info!("UI overlay attached to Bevy window");
 }
 
-fn push_events_to_webview(
+fn push_messages_to_webview(
     webview: Option<NonSend<OverlayWebView>>,
     state: Option<Res<LauncherIpcResource>>,
 ) {
@@ -158,19 +162,22 @@ fn push_events_to_webview(
         return;
     };
 
-    let Ok(events) = state.0.poll() else {
+    let Ok(messages) = state.0.poll_outbox() else {
         return;
     };
-    if events.is_empty() {
-        return;
-    }
 
-    let Ok(json) = serde_json::to_string(&events) else {
-        return;
-    };
-    let js = format!("window.__civReceiveEvents({json})");
-    if let Err(err) = webview.0.evaluate_script(&js) {
-        tracing::warn!("failed to push events to webview: {err}");
+    for message in messages {
+        let Ok(json) = message.to_json() else {
+            continue;
+        };
+        let js = match message {
+            WireMessage::Res { .. } => format!("window.__civReceiveResponse({json})"),
+            WireMessage::Evt { .. } => format!("window.__civReceiveEvent({json})"),
+            WireMessage::Req { .. } => continue,
+        };
+        if let Err(err) = webview.0.evaluate_script(&js) {
+            tracing::warn!("failed to push message to webview: {err}");
+        }
     }
 }
 

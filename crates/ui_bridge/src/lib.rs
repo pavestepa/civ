@@ -5,4 +5,4 @@ pub mod systems;
 
 pub use channel::{UiChannel, UiChannelEndpoint};
 pub use plugin::UiBridgePlugin;
-pub use protocol::{IpcEnvelope, IpcMessage};
+pub use protocol::{IpcEnvelope, IpcMessage, PendingResponses};

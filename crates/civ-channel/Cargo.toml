@@ -1,0 +1,16 @@
+[package]
+edition.workspace = true
+name = "civ-channel"
+description = "Channel runtime: engine events and front-api transport."
+readme = "README.md"
+publish = false
+
+[dependencies]
+civ-commands = { workspace = true }
+civ-common = { workspace = true }
+civ-hex = { workspace = true }
+civ-simulation = { workspace = true }
+bevy = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }

@@ -1670,6 +1670,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "civ-channel"
+version = "0.0.0"
+dependencies = [
+ "bevy",
+ "civ-commands",
+ "civ-common",
+ "civ-hex",
+ "civ-simulation",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "civ-combat"
 version = "0.0.0"
 dependencies = [
@@ -1850,10 +1864,8 @@ name = "civ-launcher"
 version = "0.0.0"
 dependencies = [
  "bevy",
- "civ-commands",
- "civ-common",
+ "civ-channel",
  "civ-engine",
- "civ-hex",
  "civ-ui-bridge",
  "serde",
  "serde_json",
@@ -2023,6 +2035,7 @@ name = "civ-ui-bridge"
 version = "0.0.0"
 dependencies = [
  "bevy",
+ "civ-channel",
  "civ-commands",
  "civ-common",
  "civ-events",

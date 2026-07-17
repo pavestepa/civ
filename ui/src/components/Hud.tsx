@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import { dispatchCommand, subscribeEvents } from "../ipc";
+import { addGold } from "@channel/front-api/add_gold/call";
+import { endTurn } from "@channel/front-api/end_turn/call";
+import { onPlayerGoldChanged } from "@channel/engine-event/player_gold_changed/subscribe";
+import { onTurnChanged } from "@channel/engine-event/turn_changed/subscribe";
 
 export function Hud() {
   const [turn, setTurn] = useState(1);
@@ -11,23 +14,20 @@ export function Hud() {
   }, []);
 
   useEffect(() => {
-    return subscribeEvents((events) => {
-      for (const raw of events) {
-        pushLog(raw);
-        if (raw.includes("TurnChanged")) {
-          const parsed = JSON.parse(raw) as {
-            payload?: { turn?: number; active_player?: number };
-          };
-          if (parsed.payload?.turn) setTurn(parsed.payload.turn);
-        }
-        if (raw.includes("PlayerGoldChanged")) {
-          const parsed = JSON.parse(raw) as {
-            payload?: { gold?: number };
-          };
-          if (parsed.payload?.gold !== undefined) setGold(parsed.payload.gold);
-        }
-      }
+    const unsubscribeTurn = onTurnChanged(({ turn: nextTurn }) => {
+      setTurn(nextTurn);
+      pushLog(`TurnChanged: ${nextTurn}`);
     });
+
+    const unsubscribeGold = onPlayerGoldChanged(({ gold: nextGold }) => {
+      setGold(nextGold);
+      pushLog(`PlayerGoldChanged: ${nextGold}`);
+    });
+
+    return () => {
+      unsubscribeTurn();
+      unsubscribeGold();
+    };
   }, [pushLog]);
 
   return (
@@ -44,15 +44,10 @@ export function Hud() {
       </header>
 
       <footer className="hud-bottom">
-        <button type="button" onClick={() => dispatchCommand({ action: "EndTurn" })}>
+        <button type="button" onClick={() => endTurn.call({})}>
           End Turn
         </button>
-        <button
-          type="button"
-          onClick={() =>
-            dispatchCommand({ action: "AddGold", data: { player: 0, amount: 10 } })
-          }
-        >
+        <button type="button" onClick={() => addGold.call({ player: 0, amount: 10 })}>
           +10 Gold
         </button>
       </footer>

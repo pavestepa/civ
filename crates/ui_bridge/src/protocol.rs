@@ -1,15 +1,24 @@
+use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
-use civ_commands::{GameCommand, UiCommand};
-use civ_events::UiEvent;
-
-/// Wire protocol between React and Rust.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(tag = "type", content = "payload")]
+#[serde(tag = "kind", rename_all = "lowercase")]
 pub enum IpcMessage {
-    Command(UiCommand),
-    Event(UiEvent),
-    GameCommand(GameCommand),
+    Request {
+        id: u64,
+        op: String,
+        body: Value,
+    },
+    Response {
+        id: u64,
+        op: String,
+        body: Value,
+    },
+    Event {
+        op: String,
+        body: Value,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -29,5 +38,16 @@ impl IpcEnvelope {
 
     pub fn from_json(value: &str) -> Result<Self, serde_json::Error> {
         serde_json::from_str(value)
+    }
+}
+
+#[derive(Resource, Default)]
+pub struct PendingResponses {
+    pub queue: Vec<(u64, String, Value)>,
+}
+
+impl PendingResponses {
+    pub fn push(&mut self, id: u64, op: impl Into<String>, body: Value) {
+        self.queue.push((id, op.into(), body));
     }
 }

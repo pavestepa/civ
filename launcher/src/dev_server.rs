@@ -29,12 +29,7 @@ pub fn ensure_vite_dev_server() {
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .spawn()
-        .unwrap_or_else(|err| {
-            panic!(
-                "failed to start Vite in {}: {err}. Run `cd ui && npm install && npm run dev` manually.",
-                ui_dir.display()
-            )
-        });
+        .expect("failed to spawn Vite dev server");
 
     let deadline = Instant::now() + VITE_START_TIMEOUT;
     while Instant::now() < deadline {
@@ -45,17 +40,13 @@ pub fn ensure_vite_dev_server() {
         thread::sleep(Duration::from_millis(200));
     }
 
-    panic!(
-        "Vite dev server did not start within {}s. Run `cd ui && npm run dev` manually.",
-        VITE_START_TIMEOUT.as_secs()
-    );
+    panic!("Vite dev server did not start within {VITE_START_TIMEOUT:?}");
 }
 
 pub fn webview_dev_url() -> String {
-    format!("http://127.0.0.1:{VITE_PORT}")
+    format!("http://127.0.0.1:{VITE_PORT}/")
 }
 
 pub fn webview_prod_url() -> String {
-    let dist = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../ui/dist/index.html");
-    format!("file://{}", dist.display())
+    "index.html".into()
 }

@@ -1,0 +1,1 @@
+include!("../../../channel/register.rs");

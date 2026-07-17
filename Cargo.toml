@@ -34,6 +34,7 @@ members = [
     "crates/scripting",
     "crates/quickjs",
     "crates/ui_bridge",
+    "crates/civ-channel",
 ]
 
 [workspace.package]
@@ -104,6 +105,11 @@ civ-network = { path = "crates/network" }
 civ-scripting = { path = "crates/scripting" }
 civ-quickjs = { path = "crates/quickjs" }
 civ-ui-bridge = { path = "crates/ui_bridge" }
+civ-channel = { path = "crates/civ-channel" }
+
+# Desktop shell
+tauri = { version = "2", features = [] }
+tauri-plugin-shell = "2"
 
 [profile.dev]
 opt-level = 1

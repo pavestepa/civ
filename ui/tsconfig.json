@@ -14,7 +14,11 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@channel/*": ["../channel/*"],
+      "@civ-channel/*": ["../crates/civ-channel/ts/*"]
+    }
   },
-  "include": ["src"]
+  "include": ["src", "../channel", "../crates/civ-channel/ts"]
 }

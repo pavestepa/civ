@@ -1,6 +1,11 @@
 use bevy::prelude::*;
+use civ_channel::{engine_event::EngineEventOutbox, front_api::FrontApiRegistry};
 
-use crate::{channel::UiChannel, systems::{dispatch_ui_commands, forward_game_events_to_ui, poll_ui_commands}};
+use crate::{
+    channel::UiChannel,
+    systems,
+    PendingResponses,
+};
 
 pub struct UiBridgePlugin;
 
@@ -10,12 +15,17 @@ impl Plugin for UiBridgePlugin {
             app.insert_resource(UiChannel::default());
         }
 
-        app.add_systems(
+        app.init_resource::<FrontApiRegistry>()
+            .init_resource::<EngineEventOutbox>()
+            .init_resource::<PendingResponses>()
+            .add_systems(
                 Update,
                 (
-                    poll_ui_commands,
-                    dispatch_ui_commands,
-                    forward_game_events_to_ui,
+                    systems::poll_ui_requests,
+                    systems::dispatch_ui_commands,
+                    systems::flush_command_responses,
+                    systems::forward_game_events_to_ui,
+                    systems::flush_engine_events,
                 )
                     .chain(),
             );
