@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use civ_simulation::SimulationState;
 
 use crate::components::{CityEntity, HexPosition, TerrainTile, UnitEntity};
-use crate::markers::{CityMarker, TerrainMarker, UnitMarker};
+use crate::markers::{CityMarker, Selectable, TerrainMarker, UnitMarker};
 pub fn sync_example_entities(
     mut commands: Commands,
     simulation: Res<SimulationState>,
@@ -29,6 +29,7 @@ pub fn sync_example_entities(
     for unit in simulation.world.units.values() {
         commands.spawn((
             UnitMarker,
+            Selectable,
             UnitEntity {
                 id: unit.id,
                 owner: unit.owner,
@@ -43,6 +44,7 @@ pub fn sync_example_entities(
     for city in simulation.world.cities.values() {
         commands.spawn((
             CityMarker,
+            Selectable,
             CityEntity {
                 id: city.id,
                 owner: city.owner,

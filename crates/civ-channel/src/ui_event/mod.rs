@@ -15,6 +15,15 @@ pub struct UiInputSet;
 pub struct WebviewInputState {
     keys_pressed: HashSet<KeyCode>,
     scroll_delta: f32,
+    mouse_click: bool,
+    mouse_x: f32,
+    mouse_y: f32,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct MouseClick {
+    pub x: f32,
+    pub y: f32,
 }
 
 impl WebviewInputState {
@@ -26,6 +35,9 @@ impl WebviewInputState {
             }
         }
         self.scroll_delta = frame.scroll_delta;
+        self.mouse_click = frame.mouse_click;
+        self.mouse_x = frame.mouse_x;
+        self.mouse_y = frame.mouse_y;
     }
 
     pub fn pressed(&self, key: KeyCode) -> bool {
@@ -34,6 +46,17 @@ impl WebviewInputState {
 
     pub fn take_scroll_delta(&mut self) -> f32 {
         std::mem::take(&mut self.scroll_delta)
+    }
+
+    pub fn take_click(&mut self) -> Option<MouseClick> {
+        if !self.mouse_click {
+            return None;
+        }
+        self.mouse_click = false;
+        Some(MouseClick {
+            x: self.mouse_x,
+            y: self.mouse_y,
+        })
     }
 }
 

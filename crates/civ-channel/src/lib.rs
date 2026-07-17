@@ -28,6 +28,6 @@ mod register;
 
 pub use engine_event::EngineEventOutbox;
 pub use front_api::{ApiContext, DispatchOutcome, FrontApiError, FrontApiRegistry};
-pub use ui_event::{input_frame, InputFrame, UiInputSet, WebviewInputState};
+pub use ui_event::{input_frame, InputFrame, MouseClick, UiInputSet, WebviewInputState};
 pub use ui_event::input_frame::OP as INPUT_FRAME_OP;
 pub use wire::WireMessage;

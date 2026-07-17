@@ -19,7 +19,7 @@
 - [ ] LOD system for map entities
 - [ ] Hex tile mesh batching
 - [x] Camera controller (pan, zoom via WASD/arrows + scroll/Q/E)
-- [ ] Selection highlighting
+- [x] Selection highlighting
 - [x] Shared IPC channel between launcher and engine (single process)
 - [x] Single-window Bevy + transparent Tauri WebView overlay
 

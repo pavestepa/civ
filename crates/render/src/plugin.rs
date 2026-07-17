@@ -7,6 +7,7 @@ use crate::{
     lighting::spawn_lighting,
     meshes::attach_example_meshes,
     scene::load_scene_assets,
+    selection::{handle_map_click, SelectionState},
 };
 
 pub struct RenderPlugin;
@@ -17,6 +18,7 @@ impl Plugin for RenderPlugin {
             color: Color::WHITE,
             brightness: 150.0,
         })
+        .init_resource::<SelectionState>()
         .add_systems(
             Startup,
             (
@@ -29,7 +31,12 @@ impl Plugin for RenderPlugin {
         .add_systems(PostStartup, attach_example_meshes)
         .add_systems(
             Update,
-            update_map_camera_controller.after(UiInputSet),
+            (
+                update_map_camera_controller,
+                handle_map_click,
+            )
+                .chain()
+                .after(UiInputSet),
         );
     }
 }
