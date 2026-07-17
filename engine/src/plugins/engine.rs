@@ -48,7 +48,8 @@ impl Plugin for EnginePluginGroup {
                     }),
                     ..default()
                 })
-                .disable::<bevy::audio::AudioPlugin>(),
+                .disable::<bevy::audio::AudioPlugin>()
+                .disable::<bevy::log::LogPlugin>(),
         )
         .add_plugins(WindowConfigPlugin)
         .add_plugins(EventsPlugin)

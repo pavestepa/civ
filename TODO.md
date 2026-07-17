@@ -20,7 +20,8 @@
 - [ ] Hex tile mesh batching
 - [ ] Camera controller (pan, zoom, rotate)
 - [ ] Selection highlighting
-- [ ] Shared window handle between Tauri and Bevy
+- [x] Shared IPC channel between launcher and engine (single process)
+- [x] Single-window Bevy + transparent Tauri WebView overlay
 
 ## Simulation
 
@@ -54,7 +55,7 @@
 - [ ] Diplomacy screen
 - [ ] Notification system
 - [ ] Minimap
-- [ ] Shared IPC channel between launcher and engine process
+- [x] Shared IPC channel (single-process `UiChannel::paired`)
 
 ## Scripting (QuickJS)
 

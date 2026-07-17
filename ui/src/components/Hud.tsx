@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { dispatchCommand, pollEvents } from "../ipc";
+import { dispatchCommand, subscribeEvents } from "../ipc";
 
 export function Hud() {
   const [turn, setTurn] = useState(1);
@@ -11,29 +11,23 @@ export function Hud() {
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(async () => {
-      try {
-        const events = await pollEvents();
-        for (const raw of events) {
-          pushLog(raw);
-          if (raw.includes("TurnChanged")) {
-            const parsed = JSON.parse(raw) as {
-              payload?: { turn?: number; active_player?: number };
-            };
-            if (parsed.payload?.turn) setTurn(parsed.payload.turn);
-          }
-          if (raw.includes("PlayerGoldChanged")) {
-            const parsed = JSON.parse(raw) as {
-              payload?: { gold?: number };
-            };
-            if (parsed.payload?.gold !== undefined) setGold(parsed.payload.gold);
-          }
+    return subscribeEvents((events) => {
+      for (const raw of events) {
+        pushLog(raw);
+        if (raw.includes("TurnChanged")) {
+          const parsed = JSON.parse(raw) as {
+            payload?: { turn?: number; active_player?: number };
+          };
+          if (parsed.payload?.turn) setTurn(parsed.payload.turn);
         }
-      } catch {
-        // Engine not connected yet.
+        if (raw.includes("PlayerGoldChanged")) {
+          const parsed = JSON.parse(raw) as {
+            payload?: { gold?: number };
+          };
+          if (parsed.payload?.gold !== undefined) setGold(parsed.payload.gold);
+        }
       }
-    }, 500);
-    return () => clearInterval(interval);
+    });
   }, [pushLog]);
 
   return (

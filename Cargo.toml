@@ -54,10 +54,6 @@ postcard = { version = "1", features = ["alloc"] }
 # Scripting
 rquickjs = "0.8"
 
-# Desktop shell
-tauri = { version = "2", features = [] }
-tauri-plugin-shell = "2"
-
 # Utilities
 thiserror = "2"
 anyhow = "1"

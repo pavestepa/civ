@@ -1,22 +1,19 @@
 use civ_ui_bridge::{IpcEnvelope, IpcMessage, UiChannelEndpoint};
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 pub struct LauncherState {
     pub channel: Mutex<UiChannelEndpoint>,
     pub next_id: Mutex<u64>,
 }
 
-impl Default for LauncherState {
-    fn default() -> Self {
-        let (_engine, launcher) = civ_ui_bridge::UiChannel::paired();
+impl LauncherState {
+    pub fn new(channel: UiChannelEndpoint) -> Self {
         Self {
-            channel: Mutex::new(launcher),
+            channel: Mutex::new(channel),
             next_id: Mutex::new(0),
         }
     }
-}
 
-impl LauncherState {
     pub fn next_id(&self) -> u64 {
         let mut id = self.next_id.lock().expect("next_id mutex poisoned");
         *id += 1;
@@ -42,5 +39,19 @@ impl LauncherState {
             }
         }
         Ok(events)
+    }
+}
+
+/// Shared launcher IPC state accessible from Bevy systems and the wry IPC handler.
+#[derive(Clone)]
+pub struct LauncherIpc(pub Arc<LauncherState>);
+
+impl LauncherIpc {
+    pub fn new(channel: UiChannelEndpoint) -> Self {
+        Self(Arc::new(LauncherState::new(channel)))
+    }
+
+    pub fn poll(&self) -> Result<Vec<String>, String> {
+        self.0.poll()
     }
 }

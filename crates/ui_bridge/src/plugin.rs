@@ -6,8 +6,11 @@ pub struct UiBridgePlugin;
 
 impl Plugin for UiBridgePlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(UiChannel::default())
-            .add_systems(
+        if !app.world().contains_resource::<UiChannel>() {
+            app.insert_resource(UiChannel::default());
+        }
+
+        app.add_systems(
                 Update,
                 (
                     poll_ui_commands,

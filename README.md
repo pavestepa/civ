@@ -31,14 +31,17 @@ workspace/
 ## Quick Start
 
 ```bash
-# Build engine
-cargo run -p civ-engine
+# Install UI deps once
+cd ui && npm install && cd ..
 
-# UI development (separate terminal)
-cd ui && npm install && npm run dev
-
-# Launcher (requires UI dev server)
+# Run the unified app (Bevy + React overlay in one window)
 cargo run -p civ-launcher
+```
+
+Optional — engine only, without UI overlay:
+
+```bash
+cargo run -p civ-engine
 ```
 
 ## Design Principles

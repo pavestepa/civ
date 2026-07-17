@@ -1,4 +1,9 @@
-import { invoke } from "@tauri-apps/api/core";
+declare global {
+  interface Window {
+    ipc?: { postMessage(message: string): void };
+    __civReceiveEvents?: (events: string[]) => void;
+  }
+}
 
 export type UiAction =
   | { action: "EndTurn" }
@@ -14,13 +19,20 @@ export type UiAction =
   | { action: "RequestSnapshot" };
 
 export async function dispatchCommand(action: UiAction): Promise<number> {
-  return invoke<number>("dispatch_command", { action });
+  if (!window.ipc) {
+    throw new Error("UI overlay IPC is not available");
+  }
+  window.ipc.postMessage(JSON.stringify(action));
+  return 0;
 }
 
-export async function pollEvents(): Promise<string[]> {
-  return invoke<string[]>("poll_events");
-}
-
-export async function launchEngine(): Promise<string> {
-  return invoke<string>("launch_engine");
+export function subscribeEvents(onEvents: (events: string[]) => void): () => void {
+  const handler = (event: Event) => {
+    const detail = (event as CustomEvent<string[]>).detail;
+    if (Array.isArray(detail)) {
+      onEvents(detail);
+    }
+  };
+  window.addEventListener("civ:events", handler);
+  return () => window.removeEventListener("civ:events", handler);
 }

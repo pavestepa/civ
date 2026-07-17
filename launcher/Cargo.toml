@@ -1,24 +1,23 @@
 [package]
 edition.workspace = true
 name = "civ-launcher"
-description = "Tauri shell hosting React UI over the Bevy renderer."
+description = "Unified Civ app: Bevy renderer with transparent React UI overlay."
 readme = "README.md"
 publish = false
-
-[build-dependencies]
-tauri-build = { version = "2", features = [] }
 
 [dependencies]
 civ-common = { workspace = true }
 civ-hex = { workspace = true }
 civ-commands = { workspace = true }
 civ-ui-bridge = { workspace = true }
-tauri = { workspace = true }
-tauri-plugin-shell = { workspace = true }
+civ-engine = { path = "../engine" }
+bevy = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
+winit = "0.30"
+wry = { version = "0.55", features = ["transparent"] }
 
 [lib]
 name = "civ_launcher_lib"

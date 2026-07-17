@@ -3,8 +3,6 @@ use civ_simulation::SimulationState;
 
 use crate::components::{CityEntity, HexPosition, TerrainTile, UnitEntity};
 use crate::markers::{CityMarker, TerrainMarker, UnitMarker};
-use civ_world::components::Elevation;
-
 pub fn sync_example_entities(
     mut commands: Commands,
     simulation: Res<SimulationState>,
