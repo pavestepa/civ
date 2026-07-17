@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use civ_channel::{
     engine_event::EngineEventOutbox,
     front_api::{ApiContext, FrontApiRegistry},
-    player_gold_changed, turn_changed,
+    input_frame, player_gold_changed, turn_changed, INPUT_FRAME_OP, WebviewInputState,
 };
 use civ_commands::{GameCommand, UiCommand};
 use civ_events::GameEvent;
@@ -16,6 +16,7 @@ pub fn poll_ui_requests(
     registry: Res<FrontApiRegistry>,
     mut ui_commands: EventWriter<UiCommand>,
     mut pending_responses: ResMut<PendingResponses>,
+    mut input: ResMut<WebviewInputState>,
     simulation: Option<Res<SimulationState>>,
 ) {
     let receiver = channel.from_engine.lock().expect("ui channel mutex poisoned");
@@ -24,24 +25,30 @@ pub fn poll_ui_requests(
     };
 
     while let Ok(envelope) = receiver.try_recv() {
-        let IpcMessage::Request { id, op, body } = envelope.message else {
-            continue;
-        };
-
-        match registry.dispatch(&op, body, &ctx) {
-            Ok(outcome) => {
-                if let Some(command) = outcome.ui_command {
-                    ui_commands.send(command);
+        match envelope.message {
+            IpcMessage::Request { id, op, body } => {
+                match registry.dispatch(&op, body, &ctx) {
+                    Ok(outcome) => {
+                        if let Some(command) = outcome.ui_command {
+                            ui_commands.send(command);
+                        }
+                        pending_responses.push(id, op, outcome.response);
+                    }
+                    Err(error) => {
+                        pending_responses.push(
+                            id,
+                            op,
+                            serde_json::json!({ "error": error.to_string() }),
+                        );
+                    }
                 }
-                pending_responses.push(id, op, outcome.response);
             }
-            Err(error) => {
-                pending_responses.push(
-                    id,
-                    op,
-                    serde_json::json!({ "error": error.to_string() }),
-                );
+            IpcMessage::Event { op, body } if op == INPUT_FRAME_OP => {
+                if let Ok(frame) = serde_json::from_value::<input_frame::InputFrame>(body) {
+                    input.apply_frame(&frame);
+                }
             }
+            IpcMessage::Event { .. } | IpcMessage::Response { .. } => {}
         }
     }
 }

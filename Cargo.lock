@@ -1946,6 +1946,7 @@ name = "civ-render"
 version = "0.0.0"
 dependencies = [
  "bevy",
+ "civ-channel",
  "civ-ecs",
  "civ-hex",
  "civ-world",

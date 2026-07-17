@@ -6,6 +6,7 @@ readme = "README.md"
 publish = false
 
 [dependencies]
+civ-channel = { workspace = true }
 civ-ecs = { workspace = true }
 civ-hex = { workspace = true }
 civ-world = { workspace = true }

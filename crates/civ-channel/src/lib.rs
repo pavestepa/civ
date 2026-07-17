@@ -1,5 +1,6 @@
 pub mod engine_event;
 pub mod front_api;
+pub mod ui_event;
 pub mod wire;
 
 #[path = "../../../channel/engine-event/turn_changed/mod.rs"]
@@ -27,4 +28,6 @@ mod register;
 
 pub use engine_event::EngineEventOutbox;
 pub use front_api::{ApiContext, DispatchOutcome, FrontApiError, FrontApiRegistry};
+pub use ui_event::{input_frame, InputFrame, UiInputSet, WebviewInputState};
+pub use ui_event::input_frame::OP as INPUT_FRAME_OP;
 pub use wire::WireMessage;

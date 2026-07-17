@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use civ_channel::{engine_event::EngineEventOutbox, front_api::FrontApiRegistry};
+use civ_channel::{engine_event::EngineEventOutbox, front_api::FrontApiRegistry, UiInputSet, WebviewInputState};
 
 use crate::{
     channel::UiChannel,
@@ -18,10 +18,12 @@ impl Plugin for UiBridgePlugin {
         app.init_resource::<FrontApiRegistry>()
             .init_resource::<EngineEventOutbox>()
             .init_resource::<PendingResponses>()
+            .init_resource::<WebviewInputState>()
+            .configure_sets(Update, UiInputSet)
             .add_systems(
                 Update,
                 (
-                    systems::poll_ui_requests,
+                    systems::poll_ui_requests.in_set(UiInputSet),
                     systems::dispatch_ui_commands,
                     systems::flush_command_responses,
                     systems::forward_game_events_to_ui,

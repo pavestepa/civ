@@ -21,6 +21,7 @@ const INIT_SCRIPT: &str = r#"
   const style = document.createElement("style");
   style.textContent = "html, body, #root { background: transparent !important; }";
   document.documentElement.appendChild(style);
+  document.body.tabIndex = -1;
 })();
 "#;
 
@@ -129,8 +130,13 @@ fn try_attach_webview_overlay(world: &mut World) {
                             tracing::warn!("failed to forward front-api request: {error}");
                         }
                     }
+                    Ok(WireMessage::Evt { op, body }) => {
+                        if let Err(error) = ipc_state.forward_event(op, body) {
+                            tracing::warn!("failed to forward ui event: {error}");
+                        }
+                    }
                     Ok(other) => {
-                        tracing::warn!("expected req wire message, got {other:?}");
+                        tracing::warn!("unexpected wire message from webview: {other:?}");
                     }
                     Err(error) => {
                         tracing::warn!("unrecognized IPC message ({error}): {body}");
