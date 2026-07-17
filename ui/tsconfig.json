@@ -16,6 +16,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
+      "@/*": ["./src/*"],
       "@channel/*": ["../channel/*"],
       "@civ-channel/*": ["../crates/civ-channel/ts/*"]
     }

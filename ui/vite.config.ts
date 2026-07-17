@@ -7,6 +7,7 @@ export default defineConfig({
   clearScreen: false,
   resolve: {
     alias: {
+      "@": path.resolve(__dirname, "./src"),
       "@channel": path.resolve(__dirname, "../channel"),
       "@civ-channel": path.resolve(__dirname, "../crates/civ-channel/ts"),
     },

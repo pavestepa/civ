@@ -1,5 +1,4 @@
-import { postUiEvent } from "@civ-channel/ui_event/runtime";
-import { OP, type InputFrame } from "@channel/ui-event/input_frame/model";
+import { INPUT_FRAME_OP, postUiEvent, type InputFrame } from "@/shared/api";
 
 const pressed = new Set<string>();
 let scrollDelta = 0;
@@ -19,7 +18,7 @@ function postFrame() {
     scroll_delta: scrollDelta,
   };
   scrollDelta = 0;
-  postUiEvent(OP, frame);
+  postUiEvent(INPUT_FRAME_OP, frame);
 }
 
 function onKeyDown(event: KeyboardEvent) {

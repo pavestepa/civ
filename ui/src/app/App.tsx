@@ -1,5 +1,4 @@
-import { Hud } from "./components/Hud";
-import "./styles.css";
+import { Hud } from "@/widgets/hud";
 
 export function App() {
   return (
