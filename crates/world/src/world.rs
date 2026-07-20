@@ -1,9 +1,13 @@
 use civ_common::PlayerId;
+use civ_hex::HexCoordinate;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 
+use crate::generation::{first_land_hex, generate_tiles, land_neighbor};
 use crate::{City, Player, Tile, Unit};
-use civ_hex::HexCoordinate;
+
+pub const DEFAULT_MAP_WIDTH: u32 = 12;
+pub const DEFAULT_MAP_HEIGHT: u32 = 12;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct WorldMap {
@@ -17,27 +21,43 @@ pub struct WorldMap {
 }
 
 impl WorldMap {
-    pub fn with_example_entities() -> Self {
+    pub fn generate(width: u32, height: u32, seed: u64) -> Self {
+        let tiles = generate_tiles(width, height, seed);
         let mut map = Self {
-            width: 8,
-            height: 8,
+            width,
+            height,
+            tiles,
             turn: 1,
             ..Default::default()
         };
 
-        let origin = HexCoordinate::ZERO;
-        map.tiles.insert(origin, Tile::example_plains(origin));
         map.players
             .insert(PlayerId(0), Player::human("Rome", PlayerId(0)));
-        map.units.insert(
-            civ_common::UnitId::new_v4(),
-            Unit::example("Warrior", PlayerId(0), HexCoordinate::new(1, 0)),
-        );
+
+        let Some(capital) = first_land_hex(&map.tiles) else {
+            return map;
+        };
+
         map.cities.insert(
             civ_common::CityId::new_v4(),
-            City::example("Rome", PlayerId(0), origin),
+            City::example("Rome", PlayerId(0), capital),
         );
 
+        if let Some(unit_hex) = land_neighbor(&map.tiles, capital) {
+            map.units.insert(
+                civ_common::UnitId::new_v4(),
+                Unit::example("Warrior", PlayerId(0), unit_hex),
+            );
+        }
+
         map
+    }
+
+    pub fn contains(&self, coord: HexCoordinate) -> bool {
+        coord.contains_in_rect(self.width, self.height)
+    }
+
+    pub fn with_example_entities() -> Self {
+        Self::generate(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT, 42)
     }
 }

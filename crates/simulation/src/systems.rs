@@ -24,6 +24,9 @@ pub fn process_commands(
                 });
             }
             GameCommand::SpawnUnit { owner, at, kind } => {
+                if !state.world.contains(*at) {
+                    continue;
+                }
                 let unit = Unit {
                     id: UnitId::new_v4(),
                     owner: *owner,
@@ -41,6 +44,9 @@ pub fn process_commands(
                 });
             }
             GameCommand::CreateCity { owner, at, name } => {
+                if !state.world.contains(*at) {
+                    continue;
+                }
                 let city = City::example(name.clone(), *owner, *at);
                 let id = city.id;
                 state.world.cities.insert(id, city);
@@ -61,6 +67,9 @@ pub fn process_commands(
                 }
             }
             GameCommand::MoveUnit { unit, to } => {
+                if !state.world.contains(*to) {
+                    continue;
+                }
                 if let Some(u) = state.world.units.get_mut(unit) {
                     u.coordinate = *to;
                     events.send(GameEvent::TileChanged { at: *to });

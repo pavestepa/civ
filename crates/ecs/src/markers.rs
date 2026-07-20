@@ -14,3 +14,6 @@ pub struct Selectable;
 
 #[derive(Component, Debug, Clone, Copy)]
 pub struct InstancedMapEntity;
+
+#[derive(Component, Debug, Clone, Copy)]
+pub struct GridCellOutline;

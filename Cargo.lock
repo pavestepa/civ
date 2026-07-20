@@ -1949,6 +1949,7 @@ dependencies = [
  "civ-channel",
  "civ-ecs",
  "civ-hex",
+ "civ-simulation",
  "civ-world",
  "image",
 ]

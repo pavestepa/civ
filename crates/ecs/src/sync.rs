@@ -3,6 +3,7 @@ use civ_simulation::SimulationState;
 
 use crate::components::{CityEntity, HexPosition, TerrainTile, UnitEntity};
 use crate::markers::{CityMarker, Selectable, TerrainMarker, UnitMarker};
+
 pub fn sync_example_entities(
     mut commands: Commands,
     simulation: Res<SimulationState>,
@@ -11,6 +12,8 @@ pub fn sync_example_entities(
     if !existing.is_empty() {
         return;
     }
+
+    let layout = civ_hex::HexLayout::default();
 
     for tile in simulation.world.tiles.values() {
         commands.spawn((
@@ -21,12 +24,19 @@ pub fn sync_example_entities(
                 owner: tile.owner,
             },
             HexPosition(tile.coordinate),
-            Transform::from_translation(tile.coordinate.to_world_position(1.0)),
-            bevy::prelude::Visibility::default(),
+            Transform::from_translation(layout.terrain_surface(tile.coordinate, tile.elevation.0)),
+            Visibility::default(),
         ));
     }
 
     for unit in simulation.world.units.values() {
+        let elevation = simulation
+            .world
+            .tiles
+            .get(&unit.coordinate)
+            .map(|tile| tile.elevation.0)
+            .unwrap_or(0);
+
         commands.spawn((
             UnitMarker,
             Selectable,
@@ -36,12 +46,19 @@ pub fn sync_example_entities(
                 name: unit.name.clone(),
             },
             HexPosition(unit.coordinate),
-            Transform::from_translation(unit.coordinate.to_world_position(1.0) + Vec3::Y * 0.5),
-            bevy::prelude::Visibility::default(),
+            Transform::from_translation(layout.unit_base(unit.coordinate, elevation)),
+            Visibility::default(),
         ));
     }
 
     for city in simulation.world.cities.values() {
+        let elevation = simulation
+            .world
+            .tiles
+            .get(&city.coordinate)
+            .map(|tile| tile.elevation.0)
+            .unwrap_or(0);
+
         commands.spawn((
             CityMarker,
             Selectable,
@@ -51,8 +68,8 @@ pub fn sync_example_entities(
                 name: city.name.clone(),
             },
             HexPosition(city.coordinate),
-            Transform::from_translation(city.coordinate.to_world_position(1.0) + Vec3::Y * 0.25),
-            bevy::prelude::Visibility::default(),
+            Transform::from_translation(layout.city_base(city.coordinate, elevation)),
+            Visibility::default(),
         ));
     }
 }

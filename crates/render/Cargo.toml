@@ -9,6 +9,7 @@ publish = false
 civ-channel = { workspace = true }
 civ-ecs = { workspace = true }
 civ-hex = { workspace = true }
+civ-simulation = { workspace = true }
 civ-world = { workspace = true }
 bevy = { workspace = true }
 image = { workspace = true }

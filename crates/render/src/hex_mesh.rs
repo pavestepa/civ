@@ -5,6 +5,35 @@ use bevy::render::{
     render_resource::PrimitiveTopology,
 };
 
+/// Filled flat pointy-top hex on the XZ plane.
+pub fn hex_fill_mesh(circumradius: f32) -> Mesh {
+    let mut positions = vec![[0.0, 0.0, 0.0]];
+    let mut normals = vec![[0.0, 1.0, 0.0]];
+    let mut indices = Vec::with_capacity(18);
+
+    for i in 0..6 {
+        let angle = -std::f32::consts::FRAC_PI_2 + i as f32 * std::f32::consts::FRAC_PI_3;
+        let (sin_a, cos_a) = angle.sin_cos();
+        positions.push([circumradius * cos_a, 0.0, circumradius * sin_a]);
+        normals.push([0.0, 1.0, 0.0]);
+    }
+
+    for i in 0..6 {
+        let a = (i + 1) as u32;
+        let b = if i == 5 { 1 } else { a + 1 };
+        indices.extend([0, a, b]);
+    }
+
+    let mut mesh = Mesh::new(
+        PrimitiveTopology::TriangleList,
+        RenderAssetUsages::default(),
+    );
+    mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, positions);
+    mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, normals);
+    mesh.insert_indices(Indices::U32(indices));
+    mesh
+}
+
 /// Flat pointy-top hex ring on the XZ plane (Y-up), aligned with map tiles.
 pub fn hex_outline_mesh(outer_radius: f32, inner_radius: f32) -> Mesh {
     let mut positions = Vec::with_capacity(24);

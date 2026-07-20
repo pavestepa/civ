@@ -1,8 +1,12 @@
 use bevy::prelude::*;
 use civ_ecs::{
-    CityEntity, CityMarker, HexPosition, TerrainMarker, TerrainTile, UnitEntity, UnitMarker,
+    CityEntity, CityMarker, GridCellOutline, HexPosition, TerrainMarker, TerrainTile, UnitEntity,
+    UnitMarker,
 };
+use civ_hex::{TILE_CIRCUMRADIUS, GRID_INNER_RADIUS, GRID_OUTER_RADIUS};
 use civ_world::components::TerrainKind;
+
+use crate::hex_mesh::{hex_fill_mesh, hex_outline_mesh};
 
 pub fn attach_example_meshes(
     mut commands: Commands,
@@ -15,40 +19,55 @@ pub fn attach_example_meshes(
     units: Query<(Entity, &UnitEntity, &HexPosition), (With<UnitMarker>, Without<Mesh3d>)>,
     cities: Query<(Entity, &CityEntity, &HexPosition), (With<CityMarker>, Without<Mesh3d>)>,
 ) {
-    for (entity, tile, pos) in &terrain {
-        let color = terrain_color(tile.terrain);
-        let y = tile.elevation.0 as f32 * 0.05;
+    let tile_mesh = meshes.add(hex_fill_mesh(TILE_CIRCUMRADIUS));
+    let grid_mesh = meshes.add(hex_outline_mesh(GRID_OUTER_RADIUS, GRID_INNER_RADIUS));
+    let grid_material = materials.add(StandardMaterial {
+        base_color: Color::srgba(1.0, 1.0, 1.0, 0.22),
+        emissive: LinearRgba::rgb(0.35, 0.45, 0.55),
+        alpha_mode: AlphaMode::Blend,
+        unlit: true,
+        cull_mode: None,
+        ..default()
+    });
 
+    for (entity, tile, _pos) in &terrain {
         commands.entity(entity).insert((
-            Mesh3d(meshes.add(Cylinder::new(0.9, 0.2))),
+            Mesh3d(tile_mesh.clone()),
             MeshMaterial3d(materials.add(StandardMaterial {
-                base_color: color,
+                base_color: terrain_color(tile.terrain),
                 perceptual_roughness: 0.85,
+                cull_mode: None,
                 ..default()
             })),
-            Transform::from_translation(pos.0.to_world_position(1.0) + Vec3::Y * y),
         ));
+
+        commands
+            .spawn((
+                GridCellOutline,
+                Mesh3d(grid_mesh.clone()),
+                MeshMaterial3d(grid_material.clone()),
+                Transform::from_translation(Vec3::Y * 0.04),
+            ))
+            .set_parent(entity);
     }
 
-    for (entity, _unit, pos) in &units {
+    for (entity, _unit, _pos) in &units {
         commands.entity(entity).insert((
-            Mesh3d(meshes.add(Capsule3d::new(0.25, 0.5))),
+            Mesh3d(meshes.add(Capsule3d::new(0.22, 0.45))),
             MeshMaterial3d(materials.add(StandardMaterial {
                 base_color: Color::srgb(0.2, 0.45, 0.85),
                 ..default()
             })),
-            Transform::from_translation(pos.0.to_world_position(1.0) + Vec3::Y * 0.5),
         ));
     }
 
-    for (entity, _city, pos) in &cities {
+    for (entity, _city, _pos) in &cities {
         commands.entity(entity).insert((
-            Mesh3d(meshes.add(Cuboid::new(0.8, 0.6, 0.8))),
+            Mesh3d(meshes.add(Cuboid::new(0.55, 0.45, 0.55))),
             MeshMaterial3d(materials.add(StandardMaterial {
                 base_color: Color::srgb(0.85, 0.65, 0.2),
                 ..default()
             })),
-            Transform::from_translation(pos.0.to_world_position(1.0) + Vec3::Y * 0.3),
         ));
     }
 }

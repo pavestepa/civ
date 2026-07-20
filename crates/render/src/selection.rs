@@ -2,15 +2,11 @@ use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use civ_channel::WebviewInputState;
 use civ_ecs::{CityMarker, HexPosition, Selectable, UnitMarker};
-use civ_hex::HexCoordinate;
+use civ_hex::{HexCoordinate, HexLayout, SELECTION_INNER_RADIUS, SELECTION_OUTER_RADIUS};
+use civ_simulation::SimulationState;
 
 use crate::camera::RenderCamera;
 use crate::hex_mesh::hex_outline_mesh;
-
-const HEX_SIZE: f32 = 1.0;
-const HIGHLIGHT_Y: f32 = 0.12;
-const OUTER_RADIUS: f32 = 0.94;
-const INNER_RADIUS: f32 = 0.82;
 
 #[derive(Component)]
 pub struct SelectionHighlight;
@@ -18,6 +14,7 @@ pub struct SelectionHighlight;
 #[derive(Resource, Default)]
 pub struct SelectionState {
     pub selected: Option<Entity>,
+    pub selected_hex: Option<HexCoordinate>,
     highlight: Option<Entity>,
 }
 
@@ -25,15 +22,10 @@ pub fn handle_map_click(
     mut input: ResMut<WebviewInputState>,
     window: Query<&Window, With<PrimaryWindow>>,
     camera_query: Query<(&Camera, &GlobalTransform), With<RenderCamera>>,
+    simulation: Res<SimulationState>,
     selectables: Query<
-        (
-            Entity,
-            &GlobalTransform,
-            &HexPosition,
-            Option<&UnitMarker>,
-            Option<&CityMarker>,
-        ),
-        (With<Selectable>, With<Mesh3d>),
+        (Entity, &HexPosition, Option<&UnitMarker>, Option<&CityMarker>),
+        With<Selectable>,
     >,
     mut selection: ResMut<SelectionState>,
     mut commands: Commands,
@@ -60,60 +52,67 @@ pub fn handle_map_click(
         return;
     };
 
-    let ray_dir = ray.direction.as_vec3();
-    let mut closest: Option<(Entity, f32, HexCoordinate)> = None;
-
-    for (entity, transform, hex_pos, unit, city) in &selectables {
-        if unit.is_none() && city.is_none() {
-            continue;
-        }
-
-        let radius = if unit.is_some() { 0.5 } else { 0.6 };
-        let Some(distance) = ray_sphere_hit(ray.origin, ray_dir, transform.translation(), radius)
-        else {
-            continue;
-        };
-
-        if closest.is_none_or(|(_, best, _)| distance < best) {
-            closest = Some((entity, distance, hex_pos.0));
-        }
-    }
-
-    clear_highlight(&mut commands, &mut selection);
-
-    let Some((entity, _, hex)) = closest else {
+    let Some(hex) = pick_hex_from_ray(ray.origin, ray.direction.as_vec3(), &simulation) else {
+        clear_highlight(&mut commands, &mut selection);
         selection.selected = None;
+        selection.selected_hex = None;
         return;
     };
 
-    selection.selected = Some(entity);
+    let entity = selectables.iter().find_map(|(entity, pos, unit, city)| {
+        if pos.0 != hex {
+            return None;
+        }
+        if unit.is_some() || city.is_some() {
+            Some(entity)
+        } else {
+            None
+        }
+    });
+
+    clear_highlight(&mut commands, &mut selection);
+    selection.selected = entity;
+    selection.selected_hex = Some(hex);
+
     spawn_highlight(
         &mut commands,
         &mut meshes,
         &mut materials,
         hex,
+        simulation
+            .world
+            .tiles
+            .get(&hex)
+            .map(|tile| tile.elevation.0)
+            .unwrap_or(0),
         &mut selection,
     );
 }
 
-fn ray_sphere_hit(origin: Vec3, direction: Vec3, center: Vec3, radius: f32) -> Option<f32> {
-    let oc = origin - center;
-    let a = direction.dot(direction);
-    let b = 2.0 * oc.dot(direction);
-    let c = oc.dot(oc) - radius * radius;
-    let discriminant = b * b - 4.0 * a * c;
-    if discriminant < 0.0 {
+fn pick_hex_from_ray(
+    origin: Vec3,
+    direction: Vec3,
+    simulation: &SimulationState,
+) -> Option<HexCoordinate> {
+    let dy = direction.y;
+    if dy.abs() < f32::EPSILON {
         return None;
     }
 
-    let sqrt_d = discriminant.sqrt();
-    let t1 = (-b - sqrt_d) / (2.0 * a);
-    if t1 >= 0.0 {
-        return Some(t1);
+    let t = -origin.y / dy;
+    if t < 0.0 {
+        return None;
     }
 
-    let t2 = (-b + sqrt_d) / (2.0 * a);
-    (t2 >= 0.0).then_some(t2)
+    let hit = origin + direction * t;
+    let layout = HexLayout::default();
+    let hex = HexCoordinate::from_world_position(hit, layout.size);
+
+    if simulation.world.contains(hex) {
+        Some(hex)
+    } else {
+        None
+    }
 }
 
 fn clear_highlight(commands: &mut Commands, selection: &mut SelectionState) {
@@ -126,15 +125,20 @@ fn spawn_highlight(
     commands: &mut Commands,
     meshes: &mut Assets<Mesh>,
     materials: &mut Assets<StandardMaterial>,
-    hex: civ_hex::HexCoordinate,
+    hex: HexCoordinate,
+    elevation: i16,
     selection: &mut SelectionState,
 ) {
-    let world = hex.to_world_position(HEX_SIZE) + Vec3::Y * HIGHLIGHT_Y;
+    let layout = HexLayout::default();
+    let world = layout.grid_overlay(hex, elevation) + Vec3::Y * 0.04;
 
     let highlight = commands
         .spawn((
             SelectionHighlight,
-            Mesh3d(meshes.add(hex_outline_mesh(OUTER_RADIUS, INNER_RADIUS))),
+            Mesh3d(meshes.add(hex_outline_mesh(
+                SELECTION_OUTER_RADIUS,
+                SELECTION_INNER_RADIUS,
+            ))),
             MeshMaterial3d(materials.add(StandardMaterial {
                 base_color: Color::srgba(1.0, 0.85, 0.15, 0.95),
                 emissive: LinearRgba::rgb(1.0, 0.75, 0.1),

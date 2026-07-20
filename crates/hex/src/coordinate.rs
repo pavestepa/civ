@@ -36,4 +36,35 @@ impl HexCoordinate {
         let z = size * (1.5 * self.r as f32);
         Vec3::new(x, 0.0, z)
     }
+
+    /// Inverse of [`Self::to_world_position`] for the XZ plane (Y is ignored).
+    pub fn from_world_position(pos: Vec3, size: f32) -> Self {
+        let q = (3.0_f32.sqrt() / 3.0 * pos.x - 1.0 / 3.0 * pos.z) / size;
+        let r = (2.0 / 3.0 * pos.z) / size;
+        Self::round_axial(q, r)
+    }
+
+    /// Round fractional axial coordinates to the nearest hex.
+    pub fn round_axial(q: f32, r: f32) -> Self {
+        let s = -q - r;
+        let mut rq = q.round();
+        let mut rr = r.round();
+        let rs = s.round();
+
+        let q_diff = (rq - q).abs();
+        let r_diff = (rr - r).abs();
+        let s_diff = (rs - s).abs();
+
+        if q_diff > r_diff && q_diff > s_diff {
+            rq = -rr - rs;
+        } else if r_diff > s_diff {
+            rr = -rq - rs;
+        }
+
+        Self::new(rq as i32, rr as i32)
+    }
+
+    pub fn contains_in_rect(self, width: u32, height: u32) -> bool {
+        self.q >= 0 && self.r >= 0 && self.q < width as i32 && self.r < height as i32
+    }
 }
